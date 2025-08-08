@@ -1,0 +1,5 @@
+Pillow>=10.0.0
+pathlib2>=2.3.7; python_version < "3.4" 
+fastapi
+uvicorn
+azure-storage-blob 
