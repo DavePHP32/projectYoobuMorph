@@ -11,11 +11,27 @@ app = FastAPI(
 )
 
 def load_azure_config():
-    """Load Azure configuration from config file"""
+    """Load Azure configuration from config file or environment variables"""
+    import os
+    
+    # Try environment variables first (for production)
+    connection_string = os.getenv('AZURE_CONNECTION_STRING')
+    container_name = os.getenv('AZURE_CONTAINER_NAME', 'processed-images')
+    
+    if connection_string:
+        return {
+            'connection_string': connection_string,
+            'container_name': container_name
+        }
+    
+    # Fallback to config file (for local development)
     config_path = Path("config/yoobumorph_config.json")
-    with open(config_path, 'r') as f:
-        config = json.load(f)
-    return config.get('azure_storage', {})
+    if config_path.exists():
+        with open(config_path, 'r') as f:
+            config = json.load(f)
+        return config.get('azure_storage', {})
+    
+    return {}
 
 def setup_routes():
     """Setup and configure all routes"""

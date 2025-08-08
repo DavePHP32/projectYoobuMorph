@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: yoobumorph-api
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn src.fastapi_app:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: AZURE_CONNECTION_STRING
+        sync: false
+      - key: AZURE_CONTAINER_NAME
+        value: processed-images
