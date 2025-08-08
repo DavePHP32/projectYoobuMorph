@@ -134,7 +134,7 @@ def process_batch(data: BatchRequest):
     
     for image_request in data.images:
         try:
-            # Get all variation names for this image (or use default if none)
+            # Get all variation names for this image (or use default if none)x
             if image_request.variations:
                 all_variation_names = [var.name for var in image_request.variations]
             else:
