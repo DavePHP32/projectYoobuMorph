@@ -49,7 +49,7 @@ def set_azure_config(connection_string: str, container_name: str):
 def upload_to_azure_blob(local_path: Path, blob_name: str) -> str:
     """Upload a file to Azure Blob Storage"""
     if not azure_storage_manager:
-        raise ValueError("Azure Storage Manager not configured")
+        raise HTTPException(status_code=500, detail="Azure Storage not configured. Please set AZURE_CONNECTION_STRING environment variable.")
     
     return azure_storage_manager.upload_file(local_path, blob_name)
 

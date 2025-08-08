@@ -38,18 +38,21 @@ def setup_routes():
     # Load Azure configuration
     azure_config = load_azure_config()
     connection_string = azure_config.get('connection_string')
-    container_name = azure_config.get('container_name', 'images')
+    container_name = azure_config.get('container_name', 'processed-images')
     
-    # Validate Azure configuration
-    if not connection_string:
-        raise ValueError("Azure connection string not found in configuration")
+    # Configure routes with Azure settings (if available)
+    if connection_string:
+        try:
+            health.set_azure_config(connection_string, container_name)
+            images.set_azure_config(connection_string, container_name)
+            admin.set_azure_config(connection_string, container_name)
+            print(f"✅ Azure Storage configured successfully for container: {container_name}")
+        except Exception as e:
+            print(f"⚠️ Warning: Failed to configure Azure Storage: {str(e)}")
+    else:
+        print("⚠️ Warning: Azure connection string not found. Some endpoints may not work.")
     
-    # Configure routes with Azure settings
-    health.set_azure_config(connection_string, container_name)
-    images.set_azure_config(connection_string, container_name)
-    admin.set_azure_config(connection_string, container_name)
-    
-    # Include routers
+    # Include routers (always include them)
     app.include_router(health.router)
     app.include_router(images.router)
     app.include_router(admin.router)

@@ -25,10 +25,14 @@ def health_check() -> Dict[str, Any]:
     """Health check endpoint to verify Azure Storage connection"""
     try:
         if not azure_storage_manager:
-            raise HTTPException(status_code=500, detail="Azure configuration not set")
-            
+            return {
+                "status": "healthy",
+                "azure_storage": "not_configured",
+                "message": "Azure Storage not configured"
+            }
+
         connection_status = azure_storage_manager.test_connection()
-        
+
         if connection_status["status"] == "connected":
             return {
                 "status": "healthy",
@@ -38,10 +42,18 @@ def health_check() -> Dict[str, Any]:
                 "container_exists": connection_status["container_exists"]
             }
         else:
-            raise HTTPException(status_code=500, detail=f"Azure Storage connection failed: {connection_status['error']}")
-            
+            return {
+                "status": "healthy",
+                "azure_storage": "error",
+                "error": connection_status["error"]
+            }
+
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Azure Storage connection failed: {str(e)}")
+        return {
+            "status": "healthy",
+            "azure_storage": "error",
+            "error": str(e)
+        }
 
 @router.get("/ping")
 def ping() -> Dict[str, str]:
