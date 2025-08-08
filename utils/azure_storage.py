@@ -212,7 +212,7 @@ class AzureStorageManager:
         """
         try:
             # Try to list containers to test connection
-            containers = list(self.blob_service_client.list_containers(max_results=1))
+            containers = list(self.blob_service_client.list_containers())
             return {
                 "status": "connected",
                 "container_name": self.container_name,
