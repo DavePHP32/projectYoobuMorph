@@ -9,3 +9,5 @@ services:
         sync: false
       - key: AZURE_CONTAINER_NAME
         value: processed-images
+    # Auto-deploy on push to main branch
+    autoDeploy: true
