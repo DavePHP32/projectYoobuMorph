@@ -2,7 +2,7 @@
 
 FastAPI application for processing and uploading images to Azure Blob Storage.
 
-## 🚀 Features
+##  Features
 
 - **Image Processing**: Square images with intelligent sizing
 - **Azure Storage**: Upload processed images to Azure Blob Storage
@@ -10,7 +10,7 @@ FastAPI application for processing and uploading images to Azure Blob Storage.
 - **RESTful API**: Clean FastAPI endpoints
 - **Health Checks**: Monitor API and Azure connection status
 
-## 📋 Requirements
+##  Requirements
 
 - Python 3.8+
 - Azure Storage Account
@@ -18,7 +18,7 @@ FastAPI application for processing and uploading images to Azure Blob Storage.
 - Pillow (PIL)
 - Azure Storage Blob SDK
 
-## 🛠️ Installation
+##  Installation
 
 1. **Clone the repository**
 ```bash
@@ -45,7 +45,7 @@ pip install -r requirements.txt
 uvicorn src.fastapi_app:app --reload --host 0.0.0.0 --port 8000
 ```
 
-## 🌐 API Endpoints
+##  API Endpoints
 
 ### Health Checks
 - `GET /health` - Check API and Azure connection status
@@ -62,23 +62,40 @@ uvicorn src.fastapi_app:app --reload --host 0.0.0.0 --port 8000
 - `GET /admin/container/status` - Get container status
 - `GET /admin/blobs` - List all blobs in container
 
-## 📝 API Usage
+##  API Usage
 
-### Process Images
+### Process Product Images
 ```json
 POST /images/process-batch
 {
-  "images": [
+  "products": [
     {
-      "url": "https://example.com/image.jpg",
-      "variations": [
+      "product_name": "t_shirt_rouge",
+      "images_list": [
         {
-          "name": "product_main",
-          "size": [750, 750]
+          "url": "https://example.com/t-shirt-rouge-main.jpg",
+          "variation_name": "main"
         },
         {
-          "name": "product_thumb",
-          "size": [300, 300]
+          "url": "https://example.com/t-shirt-rouge-detail.jpg",
+          "variation_name": "detail"
+        },
+        {
+          "url": "https://example.com/t-shirt-rouge-side.jpg",
+          "variation_name": "side"
+        }
+      ]
+    },
+    {
+      "product_name": "jean_bleu",
+      "images_list": [
+        {
+          "url": "https://example.com/jean-bleu-main.jpg",
+          "variation_name": "main"
+        },
+        {
+          "url": "https://example.com/jean-bleu-detail.jpg",
+          "variation_name": "detail"
         }
       ]
     }
@@ -90,12 +107,16 @@ POST /images/process-batch
 ```json
 {
   "azure_urls": [
-    "https://storage.blob.core.windows.net/processed-images/product_main_product_thumb_ABC123_SLY_750.jpg"
+    "https://storage.blob.core.windows.net/processed-images/t_shirt_rouge_main_detail_side_ABC123_SLY_750.jpg",
+    "https://storage.blob.core.windows.net/processed-images/t_shirt_rouge_main_detail_side_DEF456_SLY_750.jpg",
+    "https://storage.blob.core.windows.net/processed-images/t_shirt_rouge_main_detail_side_GHI789_SLY_750.jpg",
+    "https://storage.blob.core.windows.net/processed-images/jean_bleu_main_detail_JKL012_SLY_750.jpg",
+    "https://storage.blob.core.windows.net/processed-images/jean_bleu_main_detail_MNO345_SLY_750.jpg"
   ]
 }
 ```
 
-## 🚀 Deployment
+##  Deployment
 
 ### Render (Recommended)
 1. Connect your GitHub repository to Render
@@ -126,7 +147,7 @@ POST /images/process-batch
 | `AZURE_CONNECTION_STRING` | Azure Storage connection string | Yes |
 | `AZURE_CONTAINER_NAME` | Azure container name | No (default: processed-images) |
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 projectYoobuMorph/
@@ -147,12 +168,12 @@ projectYoobuMorph/
 └── requirements.txt        # Python dependencies
 ```
 
-## 🔒 Security
+## Security
 
 - Azure connection strings are stored as environment variables in production
 - Local config file is gitignored to prevent secrets from being committed
 - Azure Storage uses SAS tokens for secure access
 
-## 📄 License
+## License
 
 MIT License 
