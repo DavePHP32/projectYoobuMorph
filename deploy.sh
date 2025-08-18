@@ -1,18 +1,5 @@
-npm run build
+git pull origin main
 
-zip -r deploy.zip dist prisma package.json package-lock.json
+docker build -t moussasamina/yoobu-morph:latest .
 
-unzip -o deploy.zip -d .deployment
-
-cd .deployment
-
-npm install
-
-zip -r deploy.zip .
-
-az webapp deploy \
-  --resource-group rg-latel-dev \
-  --name yoobu-morph \
-  --src-path deploy.zip \
-  --type zip
-
+docker image push moussasamina/yoobu-morph:latest

@@ -25,5 +25,11 @@ Thumbs.db
 # Documentation
 README.md
 
+rende.yml
+Procfile
+deploy.zip
+deploy.sh
+.deployement
+
 # Local config (will be set via environment variables)
 config/yoobumorph_config.json

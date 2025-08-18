@@ -1,8 +1,10 @@
 # YoobuMorph API
 
+[https://yoobu-morph-bragcjf9hrb5dtdw.francecentral-01.azurewebsites.net/](https://yoobu-morph-bragcjf9hrb5dtdw.francecentral-01.azurewebsites.net/)
+
 FastAPI application for processing and uploading images to Azure Blob Storage.
 
-##  Features
+## Features
 
 - **Image Processing**: Square images with intelligent sizing
 - **Azure Storage**: Upload processed images to Azure Blob Storage
@@ -10,7 +12,7 @@ FastAPI application for processing and uploading images to Azure Blob Storage.
 - **RESTful API**: Clean FastAPI endpoints
 - **Health Checks**: Monitor API and Azure connection status
 
-##  Requirements
+## Requirements
 
 - Python 3.8+
 - Azure Storage Account
@@ -18,53 +20,62 @@ FastAPI application for processing and uploading images to Azure Blob Storage.
 - Pillow (PIL)
 - Azure Storage Blob SDK
 
-##  Installation
+## Installation
 
 1. **Clone the repository**
+
 ```bash
 git clone https://github.com/DavePHP32/projectYoobuMorph.git
 cd projectYoobuMorph
 ```
 
 2. **Install dependencies**
+
 ```bash
 pip install -r requirements.txt
 ```
 
 3. **Configure Azure Storage**
-   
+
    **Local Development:**
+
    - Copy your Azure connection string to `config/yoobumorph_config.json`
-   
+
    **Production:**
+
    - Set environment variable `AZURE_CONNECTION_STRING`
    - Set environment variable `AZURE_CONTAINER_NAME` (optional, defaults to "processed-images")
 
 4. **Run the application**
+
 ```bash
 uvicorn src.fastapi_app:app --reload --host 0.0.0.0 --port 8000
 ```
 
-##  API Endpoints
+## API Endpoints
 
 ### Health Checks
+
 - `GET /health` - Check API and Azure connection status
 - `GET /health/ping` - Simple ping endpoint
 
 ### Image Processing
+
 - `POST /images/process-batch` - Process multiple images with variations
 - `GET /images/info` - Get image processing configuration
 
 ### Admin
+
 - `DELETE /admin/container` - Delete Azure container
 - `POST /admin/container` - Create Azure container
 - `POST /admin/container/recreate` - Recreate Azure container
 - `GET /admin/container/status` - Get container status
 - `GET /admin/blobs` - List all blobs in container
 
-##  API Usage
+## API Usage
 
 ### Process Product Images
+
 ```json
 POST /images/process-batch
 {
@@ -104,6 +115,7 @@ POST /images/process-batch
 ```
 
 ### Response
+
 ```json
 {
   "azure_urls": [
@@ -116,9 +128,10 @@ POST /images/process-batch
 }
 ```
 
-##  Deployment
+## Deployment
 
 ### Render (Recommended)
+
 1. Connect your GitHub repository to Render
 2. Create a new Web Service
 3. Set environment variables:
@@ -126,26 +139,29 @@ POST /images/process-batch
    - `AZURE_CONTAINER_NAME`: processed-images (optional)
 
 ### Railway
+
 1. Connect your GitHub repository to Railway
 2. Add environment variables in Railway dashboard
 3. Deploy automatically
 
 ### Fly.io
+
 1. Install Fly CLI
 2. Run `fly launch`
 3. Set secrets: `fly secrets set AZURE_CONNECTION_STRING="your-connection-string"`
 
 ### Heroku
+
 1. Create Heroku app
 2. Set config vars in Heroku dashboard
 3. Deploy with `git push heroku main`
 
 ## 🔧 Environment Variables
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `AZURE_CONNECTION_STRING` | Azure Storage connection string | Yes |
-| `AZURE_CONTAINER_NAME` | Azure container name | No (default: processed-images) |
+| Variable                  | Description                     | Required                       |
+| ------------------------- | ------------------------------- | ------------------------------ |
+| `AZURE_CONNECTION_STRING` | Azure Storage connection string | Yes                            |
+| `AZURE_CONTAINER_NAME`    | Azure container name            | No (default: processed-images) |
 
 ## Project Structure
 
@@ -176,4 +192,4 @@ projectYoobuMorph/
 
 ## License
 
-MIT License 
+MIT License
