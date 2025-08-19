@@ -29,6 +29,7 @@ deploy.zip
 venv/
 env/
 ENV/
+.env.*
 
 # IDE
 .vscode/
