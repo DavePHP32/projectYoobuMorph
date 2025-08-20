@@ -43,14 +43,6 @@ class ArgumentParser:
         )
         
         parser.add_argument(
-            "--size", "-s",
-            type=int,
-            nargs=2,
-            default=[750, 750],
-            help="Taille cible pour les images carrées (largeur hauteur). Défaut: 750 750"
-        )
-        
-        parser.add_argument(
             "--bg-color", "-b",
             type=int,
             nargs=3,
@@ -70,7 +62,7 @@ class ArgumentParser:
         """Parse les arguments de ligne de commande"""
         return self.parser.parse_args()
     
-    def get_configuration(self, args) -> Tuple[str, str, Tuple[int, int], Tuple[int, int, int]]:
+    def get_configuration(self, args) -> Tuple[str, str, Tuple[int, int, int]]:
         """
         Récupère la configuration depuis les arguments ou le fichier config
         
@@ -78,7 +70,7 @@ class ArgumentParser:
             args: Arguments parsés
             
         Returns:
-            Tuple (source_dir, output_base_dir, target_size, bg_color)
+            Tuple (source_dir, output_base_dir, bg_color)
         """
         # Si l'option config est demandée ou si aucun argument n'est fourni
         if args.config or (not args.source_dir and not args.output_dir):
@@ -86,7 +78,7 @@ class ArgumentParser:
         else:
             return self._get_config_from_args(args)
     
-    def _get_config_from_file(self) -> Tuple[str, str, Tuple[int, int], Tuple[int, int, int]]:
+    def _get_config_from_file(self) -> Tuple[str, str, Tuple[int, int, int]]:
         """Récupère la configuration depuis le fichier config"""
         try:
             from config.config import Config
@@ -98,17 +90,16 @@ class ArgumentParser:
             
             source_dir = config.get_source_directory()
             output_base_dir = config.get_output_base_directory()
-            target_size = config.get_target_size()
             bg_color = config.get_background_color()
             
             logger.info("Utilisation de la configuration depuis le fichier config")
-            return source_dir, output_base_dir, target_size, bg_color
+            return source_dir, output_base_dir, bg_color
             
         except ImportError:
             logger.error("Module config non trouvé")
             sys.exit(1)
     
-    def _get_config_from_args(self, args) -> Tuple[str, str, Tuple[int, int], Tuple[int, int, int]]:
+    def _get_config_from_args(self, args) -> Tuple[str, str, Tuple[int, int, int]]:
         """Récupère la configuration depuis les arguments de ligne de commande"""
         if not args.source_dir or not args.output_dir:
             logger.error("Les arguments source_dir et output_dir sont requis")
@@ -116,10 +107,9 @@ class ArgumentParser:
         
         source_dir = args.source_dir
         output_base_dir = args.output_dir  # Utilisé comme dossier de base
-        target_size = tuple(args.size)
         bg_color = tuple(args.bg_color)
         
-        return source_dir, output_base_dir, target_size, bg_color
+        return source_dir, output_base_dir, bg_color
     
     def validate_source_directory(self, source_dir: str) -> bool:
         """

@@ -20,16 +20,17 @@ class ImageProcessor:
         self.supported_formats = {'.jpg', '.jpeg', '.png', '.webp', '.bmp', '.tiff'}
     
     def squareify_image(self, input_path: Path, output_path: Path, 
-                       target_size: Tuple[int, int] = (750, 750),
-                       bg_color: Tuple[int, int, int] = (255, 255, 255)) -> None:
+                       bg_color: Tuple[int, int, int] = (255, 255, 255)) -> Tuple[int, int]:
         """
         Carréifie une image en gardant la dimension maximale et en ajoutant des bordures
         
         Args:
             input_path: Chemin vers l'image source
             output_path: Chemin vers l'image de sortie
-            target_size: Taille cible (largeur, hauteur)
             bg_color: Couleur de fond pour les bordures (R, G, B)
+        
+        Returns:
+            Tuple[int, int]: Dimensions finales de l'image (largeur, hauteur)
         
         Raises:
             ValueError: Si l'image ne peut pas être ouverte
@@ -43,19 +44,17 @@ class ImageProcessor:
                     img = img.convert('RGB')
                 
                 original_width, original_height = img.size
-                target_width, target_height = target_size
                 
                 logger.info(f"Image originale: {original_width}x{original_height}")
-                logger.info(f"Taille cible: {target_width}x{target_height}")
                 
                 # Déterminer la stratégie de carréification
                 strategy = self._determine_squareification_strategy(
-                    original_width, original_height, target_width, target_height
+                    original_width, original_height
                 )
                 
                 # Appliquer la carréification
-                squared_image = self._apply_squareification_strategy(
-                    img, strategy, target_size, bg_color
+                squared_image, final_dimensions = self._apply_squareification_strategy(
+                    img, strategy, bg_color
                 )
                 
                 # Sauvegarder l'image
@@ -69,13 +68,15 @@ class ImageProcessor:
                     squared_image.save(output_path, quality=95, optimize=True)
                 
                 logger.info(f"Image carréifiée sauvegardée: {output_path}")
+                logger.info(f"Dimensions finales: {final_dimensions[0]}x{final_dimensions[1]}")
+                
+                return final_dimensions
                 
         except Exception as e:
             logger.error(f"Erreur lors du traitement de {input_path}: {str(e)}")
             raise
     
-    def _determine_squareification_strategy(self, original_width: int, original_height: int,
-                                          target_width: int, target_height: int) -> str:
+    def _determine_squareification_strategy(self, original_width: int, original_height: int) -> str:
         """
         Détermine la stratégie de carréification selon la rectangularité
         
@@ -84,16 +85,15 @@ class ImageProcessor:
         """
         # Calculer les ratios
         original_ratio = original_width / original_height
-        target_ratio = target_width / target_height
         
         logger.info(f"Image originale: {original_width}x{original_height}")
-        logger.info(f"Ratio original: {original_ratio:.2f}")
-        logger.info(f"Taille cible: {target_width}x{target_height}")
+        logger.info(f"Ratio original: {original_ratio:.4f}")
         
         # Déterminer la stratégie
-        if abs(original_ratio - 1.0) < 0.1:  # Image déjà carrée (±10%)
-            logger.info("Image déjà carrée - pas de carréification nécessaire")
+        if original_ratio == 1.0:  # Image parfaitement carrée (±1%)
+            logger.info("Image parfaitement carrée - pas de carréification nécessaire")
             return 'square'
+   
         elif original_ratio > 1.0:  # Image horizontale (largeur > hauteur)
             logger.info("Image horizontale - bordures haut/bas")
             return 'horizontal'
@@ -102,78 +102,65 @@ class ImageProcessor:
             return 'vertical'
     
     def _apply_squareification_strategy(self, img: Image.Image, strategy: str,
-                                      target_size: Tuple[int, int],
-                                      bg_color: Tuple[int, int, int]) -> Image.Image:
+                                      bg_color: Tuple[int, int, int]) -> Tuple[Image.Image, Tuple[int, int]]:
         """
         Applique la stratégie de carréification
         
         Args:
             img: Image PIL à traiter
             strategy: Stratégie ('horizontal', 'vertical', 'square')
-            target_size: Taille cible (largeur, hauteur)
             bg_color: Couleur de fond
         
         Returns:
-            Image.Image: Image carréifiée
+            Tuple[Image.Image, Tuple[int, int]]: Image carréifiée et dimensions finales
         """
-        target_width, target_height = target_size
         original_width, original_height = img.size
         
         if strategy == 'square':
             # Image déjà carrée, NE PAS la redimensionner, garder les dimensions originales
             logger.info("Stratégie: Image déjà carrée - GARDER les dimensions originales")
             logger.info(f"Image {original_width}x{original_height} → Pas de changement")
-            return img  # Retourner l'image originale sans modification
+            return img, (original_width, original_height) # Retourner l'image originale sans modification
         
         elif strategy == 'horizontal':
-            # Image horizontale: bordures en haut et bas
-            logger.info("Stratégie: Image horizontale - bordures haut/bas")
-            logger.info(f"Exemple: {original_width}x{original_height} → {target_width}x{target_height}")
+            # Image horizontale: garder la largeur maximale et carréifier
+            logger.info("Stratégie: Image horizontale - garder largeur maximale et carréifier")
+            logger.info(f"Exemple: {original_width}x{original_height} → {original_width}x{original_width}")
             
-            # Calculer la nouvelle taille en gardant la largeur maximale
-            scale_factor = target_width / original_width
-            new_width = target_width
-            new_height = int(original_height * scale_factor)
+            # Garder la largeur originale et créer une image carrée
+            square_size = original_width
             
-            logger.info(f"Redimensionnement: {original_width}x{original_height} → {new_width}x{new_height}")
+            logger.info(f"Carréification: {original_width}x{original_height} → {square_size}x{square_size}")
             
-            # Redimensionner l'image
-            resized_img = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
+            # Créer l'image finale carrée avec bordures
+            final_img = Image.new('RGB', (square_size, square_size), bg_color)
             
-            # Créer l'image finale avec bordures
-            final_img = Image.new('RGB', target_size, bg_color)
-            
-            # Centrer l'image
-            y_offset = (target_height - new_height) // 2
-            final_img.paste(resized_img, (0, y_offset))
+            # Centrer l'image originale (sans redimensionnement)
+            y_offset = (square_size - original_height) // 2
+            final_img.paste(img, (0, y_offset))
             
             logger.info(f"Bordures ajoutées: {y_offset}px en haut et en bas")
-            return final_img
+            return final_img, (square_size, square_size)
         
         elif strategy == 'vertical':
-            # Image verticale: bordures à gauche et droite
-            logger.info("Stratégie: Image verticale - bordures gauche/droite")
-            logger.info(f"Exemple: {original_width}x{original_height} → {target_width}x{target_height}")
+            # Image verticale: garder la hauteur maximale et carréifier
+            logger.info("Stratégie: Image verticale - garder hauteur maximale et carréifier")
+            logger.info(f"Exemple: {original_width}x{original_height} → {original_height}x{original_height}")
             
-            # Calculer la nouvelle taille en gardant la hauteur maximale
-            scale_factor = target_height / original_height
-            new_width = int(original_width * scale_factor)
-            new_height = target_height
+            # Garder la hauteur originale et créer une image carrée
+            square_size = original_height
             
-            logger.info(f"Redimensionnement: {original_width}x{original_height} → {new_width}x{new_height}")
+            logger.info(f"Carréification: {original_width}x{original_height} → {square_size}x{square_size}")
             
-            # Redimensionner l'image
-            resized_img = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
+            # Créer l'image finale carrée avec bordures
+            final_img = Image.new('RGB', (square_size, square_size), bg_color)
             
-            # Créer l'image finale avec bordures
-            final_img = Image.new('RGB', target_size, bg_color)
-            
-            # Centrer l'image
-            x_offset = (target_width - new_width) // 2
-            final_img.paste(resized_img, (x_offset, 0))
+            # Centrer l'image originale (sans redimensionnement)
+            x_offset = (square_size - original_width) // 2
+            final_img.paste(img, (x_offset, 0))
             
             logger.info(f"Bordures ajoutées: {x_offset}px à gauche et à droite")
-            return final_img
+            return final_img, (square_size, square_size)
         
         else:
             raise ValueError(f"Stratégie inconnue: {strategy}")

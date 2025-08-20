@@ -39,7 +39,7 @@ def main():
     
     # Récupération de la configuration
     try:
-        source_dir, output_base_dir, target_size, bg_color = arg_parser.get_configuration(args)
+        source_dir, output_base_dir, bg_color = arg_parser.get_configuration(args)
     except SystemExit:
         return
     
@@ -50,7 +50,7 @@ def main():
     # Exécution du traitement
     try:
         processor = BatchProcessor(source_dir, output_base_dir)
-        processor.process_batch(target_size, bg_color)
+        processor.process_batch(bg_color)
         logger.info("Traitement terminé avec succès!")
         
     except Exception as e:
